@@ -33,11 +33,11 @@ public class WishesController {
 
     @GetMapping("/{id}")
     public ResponseEntity<WishResponse> getWish(@PathVariable("id") Long id) {
-        WishEntity wish = wishService.getWishById(id);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new WishResponse(wish));
+        return wishService.findWishById(id)
+                .map(wishEntity -> ResponseEntity.status(HttpStatus.OK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(new WishResponse(wishEntity)))
+                .orElse(ResponseEntity.noContent().build());
     }
 
     @PostMapping

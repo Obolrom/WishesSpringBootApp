@@ -29,8 +29,8 @@ public class WishServiceImpl implements WishService {
     }
 
     @Override
-    public WishEntity getWishById(Long id) {
-        return wishRepository.getReferenceById(id);
+    public Optional<WishEntity> findWishById(Long id) {
+        return wishRepository.findById(id);
     }
 
     @Override

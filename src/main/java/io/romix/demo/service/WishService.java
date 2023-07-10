@@ -3,6 +3,7 @@ package io.romix.demo.service;
 import io.romix.demo.entity.WishEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface WishService {
 
@@ -10,7 +11,7 @@ public interface WishService {
 
     WishEntity saveWish(WishEntity wish);
 
-    WishEntity getWishById(Long id);
+    Optional<WishEntity> findWishById(Long id);
 
     void updateWish(WishEntity wish);
 }
