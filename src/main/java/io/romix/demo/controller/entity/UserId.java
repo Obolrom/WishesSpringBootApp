@@ -1,4 +1,4 @@
 package io.romix.demo.controller.entity;
 
-public record WishId(Long id) {
+public record UserId(Long id) {
 }

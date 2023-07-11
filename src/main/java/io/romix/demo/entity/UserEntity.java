@@ -5,12 +5,12 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "wish")
-public class WishEntity {
+@Table(name = "users")
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "wish_id", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long id;
 
     @Column(name = "username", nullable = false)
@@ -25,9 +25,9 @@ public class WishEntity {
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
-    public WishEntity() { }
+    public UserEntity() { }
 
-    public WishEntity(Long id, String username, String photoUrl, String description, Date dateOfBirth) {
+    public UserEntity(Long id, String username, String photoUrl, String description, Date dateOfBirth) {
         this.id = id;
         this.username = username;
         this.photoUrl = photoUrl;

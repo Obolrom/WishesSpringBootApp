@@ -1,6 +1,6 @@
 package io.romix.demo.service;
 
-import io.romix.demo.entity.WishEntity;
+import io.romix.demo.entity.UserEntity;
 import io.romix.demo.repository.WishRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,32 +9,37 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class WishServiceImpl implements WishService {
+public class UserServiceImpl implements UserService {
 
     private final WishRepository wishRepository;
 
     @Autowired
-    public WishServiceImpl(WishRepository wishRepository) {
+    public UserServiceImpl(WishRepository wishRepository) {
         this.wishRepository = wishRepository;
     }
 
     @Override
-    public List<WishEntity> getAllWishes() {
+    public List<UserEntity> getAllUsers() {
         return wishRepository.findAll();
     }
 
     @Override
-    public WishEntity saveWish(WishEntity wish) {
+    public UserEntity saveUser(UserEntity wish) {
         return wishRepository.save(wish);
     }
 
     @Override
-    public Optional<WishEntity> findWishById(Long id) {
+    public Optional<UserEntity> findUserById(Long id) {
         return wishRepository.findById(id);
     }
 
     @Override
-    public void updateWish(WishEntity wish) {
+    public void updateUser(UserEntity wish) {
         wishRepository.save(wish);
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        wishRepository.deleteById(id);
     }
 }
