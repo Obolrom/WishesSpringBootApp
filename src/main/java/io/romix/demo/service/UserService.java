@@ -1,19 +1,51 @@
 package io.romix.demo.service;
 
+import io.romix.demo.entity.ExpenseEntity;
 import io.romix.demo.entity.UserEntity;
+import io.romix.demo.mapper.UserMapper;
+import io.romix.demo.repository.ExpenseRepository;
+import io.romix.demo.repository.WishRepository;
+import io.romix.demo.response.User;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface UserService {
+@Service
+@RequiredArgsConstructor
+public class UserService {
 
-    List<UserEntity> getAllUsers();
+    private final WishRepository wishRepository;
+    private final ExpenseRepository expenseRepository;
+    private final UserMapper userMapper;
 
-    UserEntity saveUser(UserEntity wish);
+    public List<User> getAllUsers() {
+        List<UserEntity> userEntities = wishRepository.findAll();
 
-    Optional<UserEntity> findUserById(Long id);
+        return userEntities.stream()
+                .map(userMapper::toUser)
+                .toList();
+    }
 
-    void updateUser(UserEntity wish);
+    public UserEntity saveUser(UserEntity wish) {
+        return wishRepository.save(wish);
+    }
 
-    void deleteUser(Long id);
+    public Optional<User> findUserById(Long id) {
+        return wishRepository.findById(id)
+                .map(userMapper::toUser);
+    }
+
+    public void updateUser(UserEntity wish) {
+        wishRepository.save(wish);
+    }
+
+    public void deleteUser(Long id) {
+        wishRepository.deleteById(id);
+    }
+
+    public void saveExpense(ExpenseEntity expense) {
+        expenseRepository.save(expense);
+    }
 }

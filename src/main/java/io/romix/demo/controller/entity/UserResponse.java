@@ -1,6 +1,6 @@
 package io.romix.demo.controller.entity;
 
-import io.romix.demo.entity.UserEntity;
+import io.romix.demo.response.User;
 
-public record UserResponse(UserEntity userEntity) {
+public record UserResponse(User userEntity) {
 }
