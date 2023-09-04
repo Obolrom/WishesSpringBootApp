@@ -34,7 +34,6 @@ public class UserEntity {
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExpenseEntity> expenses;
 }
