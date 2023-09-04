@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class ExpenseMapper {
-    Expense toExpense(ExpenseEntity expenseEntity) {
+    public Expense toExpense(ExpenseEntity expenseEntity) {
         return Expense.builder()
                 .id(expenseEntity.getId())
                 .description(expenseEntity.getDescription())
@@ -16,5 +16,14 @@ public class ExpenseMapper {
                 .category(expenseEntity.getCategory())
                 .timestamp(expenseEntity.getTimestamp())
                 .build();
+    }
+
+    public ExpenseEntity toExpenseEntity(Expense expense) {
+        return ExpenseEntity.builder()
+            .description(expense.getDescription())
+            .expenseSum(expense.getExpenseSum())
+            .category(expense.getCategory())
+            .timestamp(expense.getTimestamp())
+            .build();
     }
 }

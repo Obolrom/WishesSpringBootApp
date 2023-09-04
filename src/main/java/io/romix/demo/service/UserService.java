@@ -4,7 +4,7 @@ import io.romix.demo.entity.ExpenseEntity;
 import io.romix.demo.entity.UserEntity;
 import io.romix.demo.mapper.UserMapper;
 import io.romix.demo.repository.ExpenseRepository;
-import io.romix.demo.repository.WishRepository;
+import io.romix.demo.repository.UserRepository;
 import io.romix.demo.response.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,12 +16,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final WishRepository wishRepository;
+    private final UserRepository userRepository;
     private final ExpenseRepository expenseRepository;
     private final UserMapper userMapper;
 
     public List<User> getAllUsers() {
-        List<UserEntity> userEntities = wishRepository.findAll();
+        List<UserEntity> userEntities = userRepository.findAll();
 
         return userEntities.stream()
                 .map(userMapper::toUser)
@@ -29,20 +29,20 @@ public class UserService {
     }
 
     public UserEntity saveUser(UserEntity wish) {
-        return wishRepository.save(wish);
+        return userRepository.save(wish);
     }
 
     public Optional<User> findUserById(Long id) {
-        return wishRepository.findById(id)
+        return userRepository.findById(id)
                 .map(userMapper::toUser);
     }
 
     public void updateUser(UserEntity wish) {
-        wishRepository.save(wish);
+        userRepository.save(wish);
     }
 
     public void deleteUser(Long id) {
-        wishRepository.deleteById(id);
+        userRepository.deleteById(id);
     }
 
     public void saveExpense(ExpenseEntity expense) {

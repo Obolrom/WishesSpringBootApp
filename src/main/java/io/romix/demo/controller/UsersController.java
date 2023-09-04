@@ -23,7 +23,7 @@ public class UsersController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<GetAllUsersResponse> getAllWishes() {
+    public ResponseEntity<GetAllUsersResponse> getAllUsers() {
         final var result = new GetAllUsersResponse(userService.getAllUsers());
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -32,7 +32,7 @@ public class UsersController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getWish(@PathVariable("id") Long id) {
+    public ResponseEntity<UserResponse> getUser(@PathVariable("id") Long id) {
         return userService.findUserById(id)
                 .map(wishEntity -> ResponseEntity.status(HttpStatus.OK)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -41,7 +41,7 @@ public class UsersController {
     }
 
     @PostMapping
-    public ResponseEntity<UserId> createWish(@RequestBody UserEntity wish) {
+    public ResponseEntity<UserId> createUser(@RequestBody UserEntity wish) {
         final var createdWish = userService.saveUser(wish);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -50,7 +50,7 @@ public class UsersController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateWish(@PathVariable("id") Long userId,
+    public ResponseEntity<Void> updateUser(@PathVariable("id") Long userId,
                                            @RequestBody UserEntity wish) {
         wish.setId(userId);
         userService.updateUser(wish);
@@ -61,7 +61,7 @@ public class UsersController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWish(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) {
         userService.deleteUser(id);
 
         return ResponseEntity
