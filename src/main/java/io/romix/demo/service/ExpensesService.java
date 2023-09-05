@@ -40,4 +40,10 @@ public class ExpensesService {
         .map(expenseRepository::save)
         .map(expenseMapper::toExpense);
   }
+
+  public void deleteExpense(Long userId, Long expenseId) {
+    expenseRepository.findById(expenseId)
+        .filter(expense -> expense.getUser().getId().equals(userId))
+        .ifPresent(expenseRepository::delete);
+  }
 }

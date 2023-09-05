@@ -27,4 +27,11 @@ public class ExpensesController {
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
+
+  @DeleteMapping("/{userId}/{expenseId}")
+  public void deleteExpense(
+      @PathVariable Long userId,
+      @PathVariable Long expenseId) {
+    expensesService.deleteExpense(userId, expenseId);
+  }
 }
