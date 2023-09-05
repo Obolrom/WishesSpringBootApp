@@ -1,10 +1,8 @@
 package io.romix.demo.controller;
 
-import io.romix.demo.controller.dto.ExpenseDto;
 import io.romix.demo.controller.entity.GetAllUsersResponse;
 import io.romix.demo.controller.entity.UserId;
 import io.romix.demo.controller.entity.UserResponse;
-import io.romix.demo.entity.ExpenseEntity;
 import io.romix.demo.entity.UserEntity;
 import io.romix.demo.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -66,22 +64,6 @@ public class UsersController {
 
         return ResponseEntity
                 .noContent()
-                .build();
-    }
-
-    @PostMapping("/{id}/expense")
-    public ResponseEntity<Void> createExpense(
-            @PathVariable("id") Long userId,
-            @RequestBody ExpenseDto expense) {
-
-        log.info("Create expense for user: {}, expense: {}", userId, expense);
-        ExpenseEntity expenseEntity = ExpenseEntity.builder()
-                .expenseSum(expense.getExpenseSum())
-                .category(expense.getCategory())
-                .build();
-        userService.saveExpense(expenseEntity);
-
-        return ResponseEntity.noContent()
                 .build();
     }
 }

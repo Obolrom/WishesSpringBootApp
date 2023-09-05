@@ -13,17 +13,8 @@ public class ExpenseMapper {
                 .id(expenseEntity.getId())
                 .description(expenseEntity.getDescription())
                 .expenseSum(expenseEntity.getExpenseSum())
-                .category(expenseEntity.getCategory())
+                .category(expenseEntity.getCategoryEntity().getName())
                 .timestamp(expenseEntity.getTimestamp())
                 .build();
-    }
-
-    public ExpenseEntity toExpenseEntity(Expense expense) {
-        return ExpenseEntity.builder()
-            .description(expense.getDescription())
-            .expenseSum(expense.getExpenseSum())
-            .category(expense.getCategory())
-            .timestamp(expense.getTimestamp())
-            .build();
     }
 }

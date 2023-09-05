@@ -22,8 +22,9 @@ public class ExpenseEntity {
     @Column(name = "expense_sum")
     private Double expenseSum;
 
-    @Column(name = "category")
-    private String category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    private CategoryEntity categoryEntity;
 
     @Column(name = "timestamp")
     private Date timestamp;

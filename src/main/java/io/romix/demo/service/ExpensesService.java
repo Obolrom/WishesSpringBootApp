@@ -1,8 +1,10 @@
 package io.romix.demo.service;
 
+import io.romix.demo.entity.CategoryEntity;
 import io.romix.demo.entity.ExpenseEntity;
 import io.romix.demo.entity.UserEntity;
 import io.romix.demo.mapper.ExpenseMapper;
+import io.romix.demo.repository.CategoryRepository;
 import io.romix.demo.repository.ExpenseRepository;
 import io.romix.demo.repository.UserRepository;
 import io.romix.demo.response.Expense;
@@ -16,6 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ExpensesService {
   private final ExpenseRepository expenseRepository;
+  private final CategoryRepository categoryRepository;
   private final UserRepository userRepository;
   private final ExpenseMapper expenseMapper;
 
@@ -30,7 +33,15 @@ public class ExpensesService {
   }
 
   public Optional<Expense> createExpenseForUser(Long userId, Expense expense) {
-    ExpenseEntity expenseEntity = expenseMapper.toExpenseEntity(expense);
+    CategoryEntity categoryEntity = categoryRepository.findByName(expense.getCategory())
+        .orElseGet(() -> categoryRepository.save(CategoryEntity.builder().name(expense.getCategory()).build()));
+
+    ExpenseEntity expenseEntity = ExpenseEntity.builder()
+        .description(expense.getDescription())
+        .expenseSum(expense.getExpenseSum())
+        .categoryEntity(categoryEntity)
+        .timestamp(expense.getTimestamp())
+        .build();
 
     return userRepository.findById(userId)
         .map(user -> {
