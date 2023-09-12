@@ -25,6 +25,13 @@ public class UserEntity {
     @Column(name = "username", nullable = false)
     private String username;
 
+    @Column(name = "password", nullable = false)
+    private String password;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
+
     @Column(name = "photo_url")
     private String photoUrl;
 
