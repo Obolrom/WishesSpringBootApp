@@ -12,7 +12,8 @@ services:
     depends_on:
       - wish_db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://wish_db:5432/wish_db
+      - spring.datasource.url=jdbc:postgresql://wish_db:5432/wish_db
+      - spring.flyway.url=jdbc:postgresql://wish_db:5432/wish_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=321
       - SPRING_JPA_HIBERNATE_DDL_AUTO=none
@@ -23,7 +24,12 @@ services:
     container_name: wish_db
     ports:
       - '5433:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=321
       - POSTGRES_DB=wish_db
+
+volumes:
+  db-data:
