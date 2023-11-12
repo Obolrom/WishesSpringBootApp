@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  expenses:
+    image: 'expenses:0.0.1'
+    restart: always
+    build:
+      context: .
+    container_name: expenses
+    ports:
+      - '8081:8080'
+    depends_on:
+      - wish_db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://wish_db:5432/wish_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=321
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+
+  wish_db:
+    image: 'postgres:13.1-alpine'
+    restart: always
+    container_name: wish_db
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=321
+      - POSTGRES_DB=wish_db
