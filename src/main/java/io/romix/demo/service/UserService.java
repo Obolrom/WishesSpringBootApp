@@ -21,6 +21,7 @@ public class UserService {
     private final ExpenseRepository expenseRepository;
     private final UserMapper userMapper;
 
+    @Transactional
     public List<User> getAllUsers() {
         List<UserEntity> userEntities = userRepository.findAll();
 
@@ -33,6 +34,7 @@ public class UserService {
         return userRepository.save(wish);
     }
 
+    @Transactional
     public Optional<User> findUserById(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::toUser);
