@@ -1,4 +1,4 @@
-package io.romix.demo.controller;
+package io.romix.demo.expenses;
 
 import io.romix.demo.response.Expense;
 import io.romix.demo.service.ExpensesService;
@@ -19,19 +19,18 @@ public class ExpensesController {
     return ResponseEntity.ok(expensesService.getAllExpensesByUserId(userId));
   }
 
-  @PostMapping("/{user_id}")
+  @PostMapping("/{userId}")
   public ResponseEntity<?> createNewExpenseForUser(
-      @PathVariable("user_id") Long userId,
-      @RequestBody Expense expense) {
+      @PathVariable Long userId,
+      @RequestBody ExpenseCreateRequest expense) {
     return expensesService.createExpenseForUser(userId, expense)
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-  @DeleteMapping("/{userId}/{expenseId}")
+  @DeleteMapping("/{expenseId}")
   public void deleteExpense(
-      @PathVariable Long userId,
       @PathVariable Long expenseId) {
-    expensesService.deleteExpense(userId, expenseId);
+    expensesService.deleteExpense(expenseId);
   }
 }

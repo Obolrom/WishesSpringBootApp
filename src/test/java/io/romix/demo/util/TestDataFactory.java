@@ -1,6 +1,7 @@
 package io.romix.demo.util;
 
 import io.romix.demo.entity.CategoryEntity;
+import io.romix.demo.entity.ExpenseEntity;
 import io.romix.demo.entity.Role;
 import io.romix.demo.entity.UserEntity;
 import jakarta.persistence.EntityManager;
@@ -44,6 +45,25 @@ public class TestDataFactory {
             new Date(),
             List.of()
         ));
+  }
+
+  public ExpenseEntity newExpenseEntity(CategoryEntity category, UserEntity user) {
+    return newExpenseEntity(category, user, nop);
+  }
+
+  public ExpenseEntity newExpenseEntity(
+      CategoryEntity category,
+      UserEntity user,
+      EntityCustomizer<ExpenseEntity> expenseCustomizer) {
+    return customizeAndPersist(
+        expenseCustomizer,
+        new ExpenseEntity(
+            null,
+            10.7,
+            category,
+            new Date(),
+            "test description",
+            user));
   }
 
   public CategoryEntity newCategoryEntity() {

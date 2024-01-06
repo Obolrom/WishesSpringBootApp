@@ -1,16 +1,21 @@
 package io.romix.demo.service;
 
+import io.romix.demo.CustomException;
 import io.romix.demo.entity.CategoryEntity;
 import io.romix.demo.entity.ExpenseEntity;
 import io.romix.demo.entity.UserEntity;
+import io.romix.demo.expenses.ExpenseCreateRequest;
 import io.romix.demo.mapper.ExpenseMapper;
 import io.romix.demo.repository.CategoryRepository;
 import io.romix.demo.repository.ExpenseRepository;
 import io.romix.demo.repository.UserRepository;
 import io.romix.demo.response.Expense;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,15 +37,20 @@ public class ExpensesService {
         .orElse(List.of());
   }
 
-  public Optional<Expense> createExpenseForUser(Long userId, Expense expense) {
-    CategoryEntity categoryEntity = categoryRepository.findByName(expense.getCategory())
-        .orElseGet(() -> categoryRepository.save(CategoryEntity.builder().name(expense.getCategory()).build()));
+  @Transactional
+  public Optional<Expense> createExpenseForUser(Long userId, ExpenseCreateRequest expense) {
+    CategoryEntity categoryEntity = categoryRepository
+        .findById(expense.getCategoryId())
+        .orElseThrow(() ->
+            new CustomException(
+                String.format("No category was found with id %d", expense.getCategoryId()),
+                HttpStatus.NOT_FOUND));
 
     ExpenseEntity expenseEntity = ExpenseEntity.builder()
         .description(expense.getDescription())
         .expenseSum(expense.getExpenseSum())
         .categoryEntity(categoryEntity)
-        .timestamp(expense.getTimestamp())
+        .timestamp(new Date())
         .build();
 
     return userRepository.findById(userId)
@@ -52,9 +62,15 @@ public class ExpensesService {
         .map(expenseMapper::toExpense);
   }
 
-  public void deleteExpense(Long userId, Long expenseId) {
-    expenseRepository.findById(expenseId)
-        .filter(expense -> expense.getUser().getId().equals(userId))
-        .ifPresent(expenseRepository::delete);
+  @Transactional
+  public void deleteExpense(Long expenseId) {
+    ExpenseEntity expense = expenseRepository
+        .findById(expenseId)
+        .orElseThrow(() ->
+            new CustomException(
+                String.format("No expense was found with id %d", expenseId),
+                HttpStatus.NOT_FOUND));
+
+    expenseRepository.delete(expense);
   }
 }

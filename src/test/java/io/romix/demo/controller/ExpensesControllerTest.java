@@ -1,14 +1,13 @@
 package io.romix.demo.controller;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.romix.demo.entity.CategoryEntity;
+import io.romix.demo.entity.ExpenseEntity;
 import io.romix.demo.entity.UserEntity;
+import io.romix.demo.expenses.ExpenseCreateRequest;
+import io.romix.demo.repository.ExpenseRepository;
 import io.romix.demo.response.Expense;
 import io.romix.demo.util.DbTestHelper;
 import io.romix.demo.util.TestDataFactory;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +18,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.Date;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static io.romix.demo.util.TestUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 class ExpensesControllerTest {
   @Autowired private MockMvc mockMvc;
+  @Autowired private ExpenseRepository expenseRepository;
 
   @Autowired private DbTestHelper dbTestHelper;
   @Autowired private TestDataFactory testDataFactory;
@@ -40,7 +39,7 @@ class ExpensesControllerTest {
     // GIVEN
     DbTestHelper.Transaction transaction = dbTestHelper.startTransactionOnCleanDb();
     UserEntity user = testDataFactory.newUserEntity();
-    testDataFactory.newCategoryEntity();
+    CategoryEntity category = testDataFactory.newCategoryEntity();
     transaction.commit();
 
     // WHEN
@@ -49,11 +48,10 @@ class ExpensesControllerTest {
             post("/expenses/{user_id}", user.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(
-                    Expense.builder()
+                    ExpenseCreateRequest.builder()
                         .expenseSum(10.5)
                         .description("Test desc")
-                        .timestamp(new Date())
-                        .category("Test category")
+                        .categoryId(category.getId())
                         .build())))
         .andExpect(status().isOk())
         .andReturn();
@@ -65,20 +63,75 @@ class ExpensesControllerTest {
     assertEquals("Test desc", response.getDescription());
   }
 
-  private static ObjectMapper getObjectMapper() {
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-    objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-    return objectMapper;
+  @Test
+  void test_createNewExpenseForUser_categoryNotFound() throws Exception {
+    // GIVEN
+    DbTestHelper.Transaction transaction = dbTestHelper.startTransactionOnCleanDb();
+    UserEntity user = testDataFactory.newUserEntity();
+    CategoryEntity category = testDataFactory.newCategoryEntity();
+    transaction.commit();
+
+    // WHEN
+    Long invalidCategoryId = category.getId() + 1;
+    MvcResult result = mockMvc
+        .perform(
+            post("/expenses/{user_id}", user.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(
+                    ExpenseCreateRequest.builder()
+                        .expenseSum(10.5)
+                        .description("Test desc")
+                        .categoryId(invalidCategoryId)
+                        .build())))
+        .andExpect(status().isNotFound())
+        .andReturn();
+
+    // THEN
+    assertEquals(
+        String.format("No category was found with id %d", invalidCategoryId),
+        extractMessage(result));
   }
 
-  @SneakyThrows
-  public static String asJsonString(final Object obj) {
-    return getObjectMapper().writeValueAsString(obj);
+  @Test
+  void test_deleteExpense_successfullyDeleted() throws Exception {
+    // GIVEN
+    DbTestHelper.Transaction transaction = dbTestHelper.startTransactionOnCleanDb();
+    UserEntity user = testDataFactory.newUserEntity();
+    CategoryEntity category = testDataFactory.newCategoryEntity();
+    ExpenseEntity expense = testDataFactory.newExpenseEntity(category, user);
+    transaction.commit();
+
+    // WHEN
+    mockMvc
+        .perform(
+            delete("/expenses/{expenseId}", expense.getId()))
+        .andExpect(status().isOk())
+        .andReturn();
+
+    // THEN
+    assertTrue(expenseRepository.findAll().isEmpty());
   }
 
-  @SneakyThrows
-  public static <T> T extract(MvcResult result, Class<T> type) {
-    return getObjectMapper().readValue(result.getResponse().getContentAsString(), type);
+  @Test
+  void test_deleteExpense_notFoundById() throws Exception {
+    // GIVEN
+    DbTestHelper.Transaction transaction = dbTestHelper.startTransactionOnCleanDb();
+    UserEntity user = testDataFactory.newUserEntity();
+    CategoryEntity category = testDataFactory.newCategoryEntity();
+    ExpenseEntity expense = testDataFactory.newExpenseEntity(category, user);
+    transaction.commit();
+
+    // WHEN
+    Long invalidExpenseId = expense.getId() + 1;
+    MvcResult result = mockMvc
+        .perform(
+            delete("/expenses/{expenseId}", invalidExpenseId))
+        .andExpect(status().isNotFound())
+        .andReturn();
+
+    // THEN
+    assertEquals(
+        String.format("No expense was found with id %d", invalidExpenseId),
+        extractMessage(result));
   }
 }
