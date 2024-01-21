@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: expenses-api
+  labels:
+    app: expenses-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: expenses-api
+  template:
+    metadata:
+      labels:
+        app: expenses-api
+    spec:
+      containers:
+        - name: expenses-api
+          image: rrromix/expenses:0.0.2
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8090
+          env:
+            - name: server.port
+              value: "8089"
+            - name: spring.datasource.url
+              value: jdbc:postgresql://postgres:5432/expenses_db
+            - name: spring.datasource.username
+              value: postgres
+            - name: spring.datasource.password
+              value: postgres
+          readinessProbe:
+            initialDelaySeconds: 2
+            periodSeconds: 1
+#            successThreshold: 1
+#            timeoutSeconds: 5
+            failureThreshold: 20
+            httpGet:
+              path: /health-check
+              port: 8089
+          livenessProbe:
+            initialDelaySeconds: 2
+            periodSeconds: 1
+#            successThreshold: 1
+#            timeoutSeconds: 5
+            failureThreshold: 20
+            httpGet:
+              path: /health-check
+              port: 8089
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: expenses-api-service
+  labels:
+    run: expenses-api
+spec:
+  selector:
+    app: expenses-api
+  type: LoadBalancer
+  ports:
+    - name: expenses-api-port
+      protocol: TCP
+      port: 80
+      targetPort: 8090
