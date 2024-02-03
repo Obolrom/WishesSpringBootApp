@@ -2,7 +2,7 @@ version: '3'
 
 services:
   expenses:
-    image: 'expenses:0.0.1'
+    image: 'rrromix/expenses:0.0.3'
     restart: always
     build:
       context: .
