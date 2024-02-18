@@ -5,11 +5,13 @@ import io.romix.demo.controller.entity.UserId;
 import io.romix.demo.controller.entity.UserResponse;
 import io.romix.demo.entity.UserEntity;
 import io.romix.demo.service.UserService;
+import io.romix.demo.websocket.MessageDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class UsersController {
 
     private final UserService userService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping
     public ResponseEntity<GetAllUsersResponse> getAllUsers() {
@@ -27,6 +30,13 @@ public class UsersController {
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(result);
+    }
+
+    @PostMapping("/messages")
+    public void sendMessage() {
+        simpMessagingTemplate.convertAndSend(
+            "/topic/greetings",
+            new MessageDto("Hello from UsersController!"));
     }
 
     @GetMapping("/{id}")
