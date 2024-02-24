@@ -1,15 +1,20 @@
 package io.romix.demo.service;
 
+import io.romix.demo.controller.UserCreateRequest;
+import io.romix.demo.controller.entity.AllUsersResponse;
 import io.romix.demo.entity.ExpenseEntity;
+import io.romix.demo.entity.Role;
 import io.romix.demo.entity.UserEntity;
 import io.romix.demo.mapper.UserMapper;
 import io.romix.demo.repository.ExpenseRepository;
 import io.romix.demo.repository.UserRepository;
-import io.romix.demo.response.User;
+import io.romix.demo.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,22 +27,32 @@ public class UserService {
     private final UserMapper userMapper;
 
     @Transactional
-    public List<User> getAllUsers() {
-        List<UserEntity> userEntities = userRepository.findAll();
+    public AllUsersResponse getAllUsers() {
+        List<UserResponse> usersResponse = userRepository.findAll().stream()
+            .map(userMapper::toUser)
+            .toList();
 
-        return userEntities.stream()
-                .map(userMapper::toUser)
-                .toList();
-    }
-
-    public UserEntity saveUser(UserEntity wish) {
-        return userRepository.save(wish);
+        return new AllUsersResponse(usersResponse);
     }
 
     @Transactional
-    public Optional<User> findUserById(Long id) {
+    public UserResponse saveUser(UserCreateRequest userCreateRequest) {
+        UserEntity user = UserEntity.builder()
+            .username(userCreateRequest.getUsername())
+            .password(userCreateRequest.getPassword())
+            .role(Role.USER)
+            .dateOfBirth(new Date())
+            .photoUrl("")
+            .expenses(new ArrayList<>())
+            .build();
+
+        return userMapper.toUser(userRepository.save(user));
+    }
+
+    @Transactional
+    public Optional<UserResponse> findUserById(Long id) {
         return userRepository.findById(id)
-                .map(userMapper::toUser);
+            .map(userMapper::toUser);
     }
 
     public void updateUser(UserEntity wish) {

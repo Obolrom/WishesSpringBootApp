@@ -1,9 +1,9 @@
 package io.romix.demo.controller;
 
-import io.romix.demo.controller.entity.GetAllUsersResponse;
-import io.romix.demo.controller.entity.UserId;
-import io.romix.demo.controller.entity.UserResponse;
+import io.romix.demo.controller.entity.AllUsersResponse;
+import io.romix.demo.controller.entity.UserResponseOld;
 import io.romix.demo.entity.UserEntity;
+import io.romix.demo.response.UserResponse;
 import io.romix.demo.service.UserService;
 import io.romix.demo.websocket.MessageDto;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,12 +25,22 @@ public class UsersController {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping
-    public ResponseEntity<GetAllUsersResponse> getAllUsers() {
-        final var result = new GetAllUsersResponse(userService.getAllUsers());
+    public ResponseEntity<AllUsersResponse> getAllUsers() {
+        final var usersResponse = userService.getAllUsers();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(result);
+                .body(usersResponse);
+    }
+
+    @PostMapping
+    public ResponseEntity<UserResponse> createUser(
+        @RequestBody @Validated UserCreateRequest userCreateRequest) {
+        final var user = userService.saveUser(userCreateRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(user);
     }
 
     @PostMapping("/messages")
@@ -40,21 +51,12 @@ public class UsersController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable("id") Long id) {
+    public ResponseEntity<UserResponseOld> getUser(@PathVariable("id") Long id) {
         return userService.findUserById(id)
                 .map(wishEntity -> ResponseEntity.status(HttpStatus.OK)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(new UserResponse(wishEntity)))
+                        .body(new UserResponseOld(wishEntity)))
                 .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public ResponseEntity<UserId> createUser(@RequestBody UserEntity wish) {
-        final var createdWish = userService.saveUser(wish);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new UserId(createdWish.getId()));
     }
 
     @PatchMapping("/{id}")

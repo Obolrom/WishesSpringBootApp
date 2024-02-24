@@ -1,9 +1,6 @@
 package io.romix.demo.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
@@ -12,7 +9,8 @@ import java.util.List;
 @ToString
 @Builder
 @AllArgsConstructor
-public class User {
+@NoArgsConstructor
+public class UserResponse {
     private Long id;
     private String username;
     private String photoUrl;
