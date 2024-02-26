@@ -5,7 +5,10 @@ const stompClient = new StompJs.Client({
 stompClient.onConnect = (frame) => {
     setConnected(true);
     console.log('Connected: ' + frame);
-    stompClient.subscribe('/topic/greetings', (greeting) => {
+    // stompClient.subscribe('/topic/greetings', (greeting) => {
+    //     showGreeting(JSON.parse(greeting.body).message);
+    console.log('/user/' + $("#author").val() + '/queue/chat')
+    stompClient.subscribe('/user/' + $("#author").val() + '/queue/chat', (greeting) => {
         showGreeting(JSON.parse(greeting.body).message);
     });
 };
@@ -43,8 +46,10 @@ function disconnect() {
 
 function sendName() {
     stompClient.publish({
-        destination: "/app/hello",
-        body: JSON.stringify({'message': $("#name").val()})
+        // destination: "/app/hello",
+        // body: JSON.stringify({'message': $("#name").val()})
+        destination: "/chat/direct",
+        body: JSON.stringify({'message': $("#name").val(), 'authorId': $("#author").val(), 'receiverId': $("#receiver").val()})
     });
 }
 

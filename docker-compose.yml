@@ -2,13 +2,13 @@ version: '3'
 
 services:
   expenses:
-    image: 'rrromix/expenses:0.0.3'
+    image: 'rrromix/expenses:0.0.6'
     restart: always
     build:
       context: .
     container_name: expenses
     ports:
-      - '8081:8080'
+      - '8080:8080'
     depends_on:
       - wish_db
     environment:

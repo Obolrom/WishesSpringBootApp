@@ -9,21 +9,23 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
+@EnableScheduling
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
   @Override
   public void configureMessageBroker(MessageBrokerRegistry config) {
-    config.enableSimpleBroker("/topic");
-    config.setApplicationDestinationPrefixes("/app");
+    config.enableSimpleBroker("/topic", "/user", "/queue");
+    config.setApplicationDestinationPrefixes("/app", "/chat");
     config.setUserDestinationPrefix("/user");
   }
 
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
-    registry.addEndpoint("/gs-guide-websocket")
+    registry.addEndpoint("/gs-guide-websocket");
+//        .setHandshakeHandler(new CustomHandshakeHandler());
 //        .setAllowedOrigins("*")
-        .withSockJS();
+//        .withSockJS(); // <-- this line breaks mobile ws connection by some reason
   }
 
 }
