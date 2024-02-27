@@ -10,6 +10,7 @@ import io.romix.demo.repository.ExpenseRepository;
 import io.romix.demo.repository.UserRepository;
 import io.romix.demo.response.UserResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ExpenseRepository expenseRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public AllUsersResponse getAllUsers() {
@@ -39,7 +41,7 @@ public class UserService {
     public UserResponse saveUser(UserCreateRequest userCreateRequest) {
         UserEntity user = UserEntity.builder()
             .username(userCreateRequest.getUsername())
-            .password(userCreateRequest.getPassword())
+            .password(passwordEncoder.encode(userCreateRequest.getPassword()))
             .role(Role.USER)
             .dateOfBirth(new Date())
             .photoUrl("")

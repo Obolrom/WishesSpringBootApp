@@ -15,6 +15,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -25,7 +27,8 @@ public class UsersController {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping
-    public ResponseEntity<AllUsersResponse> getAllUsers() {
+    public ResponseEntity<AllUsersResponse> getAllUsers(Principal principal) {
+        log.info("Principal: {}", principal);
         final var usersResponse = userService.getAllUsers();
 
         return ResponseEntity.status(HttpStatus.OK)
