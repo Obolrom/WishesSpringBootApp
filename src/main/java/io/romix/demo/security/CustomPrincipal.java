@@ -6,6 +6,7 @@ import java.security.Principal;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomPrincipal implements Principal {

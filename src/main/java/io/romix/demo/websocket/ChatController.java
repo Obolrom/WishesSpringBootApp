@@ -38,8 +38,9 @@ public class ChatController {
   }
 
   @MessageMapping("/direct")
-  public void direct(@NonNull @Payload MessageDtoV2 message) {
+  public void direct(@NonNull @Payload MessageDtoV2 message, Principal principal) {
     log.info("direct: {}", message);
+    log.info("principal: {}", principal);
 
     simpMessagingTemplate.convertAndSendToUser(message.getReceiverId().toString(), "/queue/chat", message);
     simpMessagingTemplate.convertAndSendToUser(message.getAuthorId().toString(), "/queue/chat", message);

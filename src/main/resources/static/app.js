@@ -1,5 +1,9 @@
 const stompClient = new StompJs.Client({
-    brokerURL: 'ws://localhost:8080/gs-guide-websocket'
+    brokerURL: 'ws://localhost:8080/gs-guide-websocket',
+    connectHeaders: {
+        // Replace 'Your-Authorization-Token' with your actual token
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxNSIsInJvbGUiOiJVU0VSIiwiaXNzIjoicnJyb21peCIsImV4cCI6MTc5NTM4NTEyOSwiaWF0IjoxNzA4OTg1MTI5LCJqdGkiOiJhZWYyMDVjYS03ZGVhLTQ1MjMtOGVkYy1mZmM4MzRiMjM2MWMiLCJ1c2VybmFtZSI6InJvbWl4In0.zhp17zjQ1fRKRM23qgWZRaiHJQwVd_h3OAQhgLPrNNM'
+    },
 });
 
 stompClient.onConnect = (frame) => {
