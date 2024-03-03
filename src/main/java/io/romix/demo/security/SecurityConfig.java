@@ -31,6 +31,7 @@ public class SecurityConfig {
       "/api/v1/auth/register",
       "/ws/**",
       "/gs-guide-websocket/**",
+      "/health",
       "/",
       "/index.html",
       "/app.js"

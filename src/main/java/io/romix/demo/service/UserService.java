@@ -1,5 +1,6 @@
 package io.romix.demo.service;
 
+import io.romix.demo.CustomException;
 import io.romix.demo.controller.UserCreateRequest;
 import io.romix.demo.controller.entity.AllUsersResponse;
 import io.romix.demo.entity.ExpenseEntity;
@@ -10,6 +11,7 @@ import io.romix.demo.repository.ExpenseRepository;
 import io.romix.demo.repository.UserRepository;
 import io.romix.demo.response.UserResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +57,15 @@ public class UserService {
     public Optional<UserResponse> findUserById(Long id) {
         return userRepository.findById(id)
             .map(userMapper::toUser);
+    }
+
+    @Transactional
+    public UserEntity getUserByIdOrError(Long id) {
+        return userRepository.findById(id)
+            .orElseThrow(() ->
+                new CustomException(
+                    String.format("User with id %d not found", id),
+                    HttpStatus.NOT_FOUND));
     }
 
     public void updateUser(UserEntity wish) {
