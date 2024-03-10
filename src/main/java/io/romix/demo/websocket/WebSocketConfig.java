@@ -82,26 +82,25 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())
             && accessor.getDestination() != null
             && accessor.getDestination().startsWith("/user")) {
-          if (accessor.getDestination() != null && accessor.getDestination().startsWith("/user")) {
-            Long userId = Arrays.stream(accessor.getDestination().split("/"))
-                .filter(destinationToken -> isNumeric(destinationToken))
-                .findFirst()
-                .map(Long::parseLong)
-                .orElseThrow(() ->
-                    new CustomException("User id should be presented to listen"));
+          Long userId = Arrays.stream(accessor.getDestination().split("/"))
+              .filter(destinationToken -> isNumeric(destinationToken))
+              .findFirst()
+              .map(Long::parseLong)
+              .orElseThrow(() ->
+                  new CustomException("User id should be presented to listen"));
 
-            CustomPrincipal principal =
-                (CustomPrincipal) ((UsernamePasswordAuthenticationToken) Objects.requireNonNull(accessor.getUser())).getPrincipal();
+          CustomPrincipal principal =
+              (CustomPrincipal) ((UsernamePasswordAuthenticationToken) Objects.requireNonNull(accessor.getUser())).getPrincipal();
 
-            if (principal == null) {
-              throw new CustomException("Something went wrong", HttpStatus.UNAUTHORIZED);
-            }
-
-            log.info("STOMP SUBSCRIBE {} for principalId={}", accessor.getDestination(), principal.getId());
-            if (!userId.equals(principal.getId())) {
-              throw new CustomException("Invalid user id to listen messages", HttpStatus.FORBIDDEN);
-            }
+          if (principal == null) {
+            throw new CustomException("Something went wrong", HttpStatus.UNAUTHORIZED);
           }
+
+          if (!userId.equals(principal.getId())) {
+            throw new CustomException("Invalid user id to listen messages", HttpStatus.FORBIDDEN);
+          }
+
+          log.info("STOMP SUBSCRIBE {} for principalId={}", accessor.getDestination(), principal.getId());
         }
 
         return message;
