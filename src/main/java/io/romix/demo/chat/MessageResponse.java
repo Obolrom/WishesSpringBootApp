@@ -18,7 +18,13 @@ public class MessageResponse {
   private Long authorId;
 
   @NotNull
+  private String authorUsername;
+
+  @NotNull
   private Long receiverId;
+
+  @NotNull
+  private String receiverUsername;
 
   private Long createdAt;
 

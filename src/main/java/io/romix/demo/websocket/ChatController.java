@@ -43,10 +43,10 @@ public class ChatController {
     MessageResponse messageResponse = messageService.createMessage(message, customPrincipal);
 
     simpMessagingTemplate.convertAndSendToUser(
-        messageResponse.getReceiverId().toString(),
+        messageResponse.getReceiverUsername(), // should match with Principal name
         "/queue/chat", messageResponse);
     simpMessagingTemplate.convertAndSendToUser(
-        messageResponse.getAuthorId().toString(),
+        messageResponse.getAuthorUsername(), // should match with Principal name
         "/queue/chat", messageResponse);
 
     log.info("Message sent: {}", messageResponse);

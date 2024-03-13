@@ -21,11 +21,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-
-import java.util.Arrays;
+import org.springframework.web.socket.config.annotation.*;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -38,11 +34,20 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   @Value("${jwt.secret}")
   private String secret;
 
+  @Value("${spring.rabbitmq.host}")
+  private String relayHost;
+
+  @Value("${spring.rabbitmq.port}")
+  private Integer relayPort;
+
   private final Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 
   @Override
   public void configureMessageBroker(MessageBrokerRegistry config) {
-    config.enableSimpleBroker("/topic", "/user", "/queue");
+    config.enableStompBrokerRelay("/topic", "/queue")
+        .setRelayHost(relayHost)
+        .setRelayPort(relayPort);
+
     config.setApplicationDestinationPrefixes("/app", "/chat");
     config.setUserDestinationPrefix("/user");
   }
@@ -82,12 +87,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())
             && accessor.getDestination() != null
             && accessor.getDestination().startsWith("/user")) {
-          Long userId = Arrays.stream(accessor.getDestination().split("/"))
-              .filter(destinationToken -> isNumeric(destinationToken))
-              .findFirst()
-              .map(Long::parseLong)
-              .orElseThrow(() ->
-                  new CustomException("User id should be presented to listen"));
+//          Long userId = Arrays.stream(accessor.getDestination().split("/"))
+//              .filter(destinationToken -> isNumeric(destinationToken))
+//              .findFirst()
+//              .map(Long::parseLong)
+//              .orElseThrow(() ->
+//                  new CustomException("User id should be presented to listen"));
 
           CustomPrincipal principal =
               (CustomPrincipal) ((UsernamePasswordAuthenticationToken) Objects.requireNonNull(accessor.getUser())).getPrincipal();
@@ -95,12 +100,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
           if (principal == null) {
             throw new CustomException("Something went wrong", HttpStatus.UNAUTHORIZED);
           }
+//          if (!userId.equals(principal.getId())) {
+//            throw new CustomException("Invalid user id to listen messages", HttpStatus.FORBIDDEN);
+//          }
 
-          if (!userId.equals(principal.getId())) {
-            throw new CustomException("Invalid user id to listen messages", HttpStatus.FORBIDDEN);
-          }
-
-          log.info("STOMP SUBSCRIBE {} for principalId={}", accessor.getDestination(), principal.getId());
+          log.info("STOMP SUBSCRIBE {} for principalId={}, sessionId={}", accessor.getDestination(), principal.getId(), accessor.getSessionId());
         }
 
         return message;
