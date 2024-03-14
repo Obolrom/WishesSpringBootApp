@@ -20,7 +20,7 @@ spring:
 
   # DOESN'T WORK PROPERLY. NOW SET VALUES PROGRAMMATICALLY
   rabbitmq:
-    host: rabbitmq
+    host: localhost
     port: 61613
     username: guest
     password: guest

@@ -10,8 +10,10 @@ services:
       mode: replicated
       replicas: 1
     depends_on:
-      - wish_db
-      - rabbitmq
+      wish_db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       - spring.datasource.url=jdbc:postgresql://wish_db:5432/${DATABASE_NAME}
       - SPRING_DATASOURCE_USERNAME=${DATABASE_USERNAME}
@@ -39,6 +41,11 @@ services:
     image: 'postgres:13.1-alpine'
     restart: always
     container_name: wish_db
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${DATABASE_USERNAME} -d ${DATABASE_NAME}'" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
     ports:
       - '5433:5432'
     volumes:
@@ -51,6 +58,11 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     hostname: rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest

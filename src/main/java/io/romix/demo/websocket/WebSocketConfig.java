@@ -40,13 +40,21 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   @Value("${spring.rabbitmq.port}")
   private Integer relayPort;
 
+  @Value("${spring.rabbitmq.username}")
+  private String username;
+
+  @Value("${spring.rabbitmq.password}")
+  private String password;
+
   private final Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 
   @Override
   public void configureMessageBroker(MessageBrokerRegistry config) {
     config.enableStompBrokerRelay("/topic", "/queue")
         .setRelayHost(relayHost)
-        .setRelayPort(relayPort);
+        .setRelayPort(relayPort)
+        .setClientLogin(username)
+        .setClientPasscode(password);
 
     config.setApplicationDestinationPrefixes("/app", "/chat");
     config.setUserDestinationPrefix("/user");
