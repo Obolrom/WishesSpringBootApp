@@ -1,5 +1,6 @@
 package io.romix.demo.chat;
 
+import io.romix.demo.controller.dto.ChatResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -20,10 +21,8 @@ public class MessageResponse {
   @NotNull
   private String authorUsername;
 
-  @NotNull
   private Long receiverId;
 
-  @NotNull
   private String receiverUsername;
 
   private Long createdAt;
@@ -32,4 +31,6 @@ public class MessageResponse {
   private Boolean modified;
 
   private Long modifiedAt;
+
+  private ChatResponse chat;
 }

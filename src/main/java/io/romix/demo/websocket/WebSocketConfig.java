@@ -1,13 +1,11 @@
 package io.romix.demo.websocket;
 
-import io.romix.demo.CustomException;
-import io.romix.demo.security.CustomPrincipal;
 import io.romix.demo.security.JwtHandler;
 import io.romix.demo.security.UserAuthenticationBearer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -18,11 +16,12 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.socket.config.annotation.*;
-import java.util.Objects;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+
 import java.util.regex.Pattern;
 
 @Configuration
@@ -81,7 +80,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         assert accessor != null;
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-          String authorizationHeader = accessor.getFirstNativeHeader("Authorization");
+          String authorizationHeader = accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION);
           assert authorizationHeader != null;
           String token = authorizationHeader.substring(7);
 
@@ -92,38 +91,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
           SecurityContextHolder.getContext().setAuthentication(authentication);
 
           accessor.setUser(authentication);
-        } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())
-            && accessor.getDestination() != null
-            && accessor.getDestination().startsWith("/user")) {
-//          Long userId = Arrays.stream(accessor.getDestination().split("/"))
-//              .filter(destinationToken -> isNumeric(destinationToken))
-//              .findFirst()
-//              .map(Long::parseLong)
-//              .orElseThrow(() ->
-//                  new CustomException("User id should be presented to listen"));
-
-          CustomPrincipal principal =
-              (CustomPrincipal) ((UsernamePasswordAuthenticationToken) Objects.requireNonNull(accessor.getUser())).getPrincipal();
-
-          if (principal == null) {
-            throw new CustomException("Something went wrong", HttpStatus.UNAUTHORIZED);
-          }
-//          if (!userId.equals(principal.getId())) {
-//            throw new CustomException("Invalid user id to listen messages", HttpStatus.FORBIDDEN);
-//          }
-
-          log.info("STOMP SUBSCRIBE {} for principalId={}, sessionId={}", accessor.getDestination(), principal.getId(), accessor.getSessionId());
         }
 
         return message;
       }
     });
-  }
-
-  public boolean isNumeric(String strNum) {
-    if (strNum == null) {
-      return false;
-    }
-    return pattern.matcher(strNum).matches();
   }
 }

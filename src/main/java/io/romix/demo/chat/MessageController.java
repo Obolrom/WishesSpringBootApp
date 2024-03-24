@@ -20,4 +20,12 @@ public class MessageController {
   ) {
     return messageService.getMessages(companionId, PageRequest.of(page, pageSize));
   }
+
+  @GetMapping("/rooms/{roomId}")
+  public PageMessageResponse getRoomMessages(
+      @PathVariable Long roomId,
+      @RequestParam(defaultValue = "0") Integer page,
+      @RequestParam(defaultValue = "20", required = false) Integer pageSize) {
+    return messageService.getRoomMessages(roomId, PageRequest.of(page, pageSize));
+  }
 }

@@ -22,7 +22,7 @@ public class Message implements Serializable {
   private String message;
 
   @ManyToOne
-  @JoinColumn(name = "receiver_id", referencedColumnName = "user_id", nullable = false)
+  @JoinColumn(name = "receiver_id", referencedColumnName = "user_id")
   private UserEntity receiver;
 
   @ManyToOne
@@ -37,4 +37,8 @@ public class Message implements Serializable {
 
   @Column(name = "deleted", nullable = false)
   private Boolean deleted;
+
+  @ManyToOne
+  @JoinColumn(name = "chat_id", referencedColumnName = "id")
+  private Chat chat;
 }

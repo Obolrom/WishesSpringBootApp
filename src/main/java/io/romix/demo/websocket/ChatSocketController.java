@@ -6,10 +6,7 @@ import io.romix.demo.security.CustomPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
-import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +17,7 @@ import java.security.Principal;
 @Controller
 @Slf4j
 @RequiredArgsConstructor
-public class ChatController {
+public class ChatSocketController {
   private final SimpMessagingTemplate simpMessagingTemplate;
   private final MessageService messageService;
   private final SimpUserRegistry simpUserRegistry;
@@ -48,6 +45,27 @@ public class ChatController {
     simpMessagingTemplate.convertAndSendToUser(
         messageResponse.getAuthorUsername(), // should match with Principal name
         "/queue/chat", messageResponse);
+
+    log.info("Message sent: {}", messageResponse);
+  }
+
+  /**
+   * We should use '/topic/room.{roomId}', not the '/topic/room/{roomId}'
+   * @see <a href="https://github.com/spring-guides/gs-messaging-stomp-websocket/issues/35">github issue</a>
+   */
+  @MessageMapping("/room/{roomId}")
+  public void room(
+      @NonNull @Payload RoomMessageCreateRequest message,
+      @DestinationVariable Long roomId,
+      Principal principal) {
+    log.info("roomId - message: {} - {}", roomId, message);
+
+    CustomPrincipal customPrincipal =
+        (CustomPrincipal) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+
+    MessageResponse messageResponse = messageService.createRoomMessage(roomId, message, customPrincipal);
+
+    simpMessagingTemplate.convertAndSend("/topic/room." + roomId, messageResponse);
 
     log.info("Message sent: {}", messageResponse);
   }
