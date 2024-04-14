@@ -59,7 +59,15 @@ public class UserService {
             .map(userMapper::toUser);
     }
 
-    @Transactional
+    public UserResponse getUserResponseByIdOrError(Long id) {
+        return userRepository.findById(id)
+            .map(userMapper::toUser)
+            .orElseThrow(() ->
+                new CustomException(
+                    String.format("User with id %d not found", id),
+                    HttpStatus.NOT_FOUND));
+    }
+
     public UserEntity getUserByIdOrError(Long id) {
         return userRepository.findById(id)
             .orElseThrow(() ->

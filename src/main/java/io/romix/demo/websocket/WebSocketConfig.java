@@ -53,7 +53,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         .setRelayHost(relayHost)
         .setRelayPort(relayPort)
         .setClientLogin(username)
-        .setClientPasscode(password);
+        .setClientPasscode(password)
+        .setUserDestinationBroadcast("/topic/unresolved-user")
+        .setUserRegistryBroadcast("/topic/user-registry");
 
     config.setApplicationDestinationPrefixes("/app", "/chat");
     config.setUserDestinationPrefix("/user");

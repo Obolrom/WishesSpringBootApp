@@ -101,6 +101,10 @@ public class MessageService {
     return toMessageResponse(messageRepository.save(message));
   }
 
+  public String getUsernameById(@NonNull Long userId) {
+    return userService.getUserByIdOrError(userId).getUsername();
+  }
+
   @NonNull
   private Specification<Message> getPrivateMessageSpecification(
       @NonNull Long authorId, @NonNull Long receiverId) {

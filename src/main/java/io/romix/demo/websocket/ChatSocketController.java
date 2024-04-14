@@ -49,6 +49,16 @@ public class ChatSocketController {
     log.info("Message sent: {}", messageResponse);
   }
 
+  @MessageMapping("/direct/typing")
+  public void typing(@NonNull @Payload TypingMessage typingMessage, Principal principal) {
+    log.info("typing: {}", typingMessage);
+    log.info("principal: {}", principal);
+
+    simpMessagingTemplate.convertAndSendToUser(
+        messageService.getUsernameById(typingMessage.getReceiverId()), // should match with Principal name
+        "/queue/typing", new TypingResponse(typingMessage.getIsTyping()));
+  }
+
   /**
    * We should use '/topic/room.{roomId}', not the '/topic/room/{roomId}'
    * @see <a href="https://github.com/spring-guides/gs-messaging-stomp-websocket/issues/35">github issue</a>
